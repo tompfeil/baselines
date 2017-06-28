@@ -229,6 +229,9 @@ def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=
             update_target_expr.append(var_target.assign(var))
         update_target_expr = tf.group(*update_target_expr)
 
+        for var in q_func_vars: # records weights and biases
+            tf.summary.histogram(var.name, var)
+        summary = tf.summary.merge_all()
         # Create callable functions
         train = U.function(
             inputs=[
@@ -239,7 +242,7 @@ def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=
                 done_mask_ph,
                 importance_weights_ph
             ],
-            outputs=td_error,
+            outputs=[td_error, summary],
             updates=[optimize_expr]
         )
         update_target = U.function([], [], updates=[update_target_expr])

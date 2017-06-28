@@ -202,6 +202,8 @@ def learn(env,
     U.initialize()
     update_target()
 
+    summaryWriter = tf.summary.FileWriter('tf_summary', sess.graph)
+
     episode_rewards = [0.0]
     saved_mean_reward = None
     obs = env.reset()
@@ -232,7 +234,8 @@ def learn(env,
                 else:
                     obses_t, actions, rewards, obses_tp1, dones = replay_buffer.sample(batch_size)
                     weights, batch_idxes = np.ones_like(rewards), None
-                td_errors = train(obses_t, actions, rewards, obses_tp1, dones, np.ones_like(rewards))
+                td_errors, summary_value = train(obses_t, actions, rewards, obses_tp1, dones, np.ones_like(rewards))
+                summaryWriter.add_summary(summary_value, t)
                 if prioritized_replay:
                     new_priorities = np.abs(td_errors) + prioritized_replay_eps
                     replay_buffer.update_priorities(batch_idxes, new_priorities)
