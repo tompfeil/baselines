@@ -29,6 +29,7 @@ def mlp(hiddens=[]):
 
 def _cnn_to_mlp(convs, hiddens, dueling, inpt, num_actions, scope, reuse=False):
     with tf.variable_scope(scope, reuse=reuse):
+        tf.summary.histogram('input', inpt)
         out = inpt
         with tf.variable_scope("convnet"):
             for num_outputs, kernel_size, stride in convs:
